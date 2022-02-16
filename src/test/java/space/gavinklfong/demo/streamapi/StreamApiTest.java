@@ -13,7 +13,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +22,16 @@ import lombok.extern.slf4j.Slf4j;
 import space.gavinklfong.demo.streamapi.models.Customer;
 import space.gavinklfong.demo.streamapi.models.Order;
 import space.gavinklfong.demo.streamapi.models.Product;
+import space.gavinklfong.demo.streamapi.repos.CustomerRepo;
 import space.gavinklfong.demo.streamapi.repos.OrderRepo;
 import space.gavinklfong.demo.streamapi.repos.ProductRepo;
 
 @Slf4j
 @DataJpaTest
 public class StreamApiTest {
+
+	@Autowired
+	private CustomerRepo customerRepo;
 
 	@Autowired
 	private OrderRepo orderRepo;
@@ -40,7 +43,7 @@ public class StreamApiTest {
 	@DisplayName("Obtain a list of product with category = \"Books\" and price > 100")
 	public void exercise1() {
 		long startTime = System.currentTimeMillis();
-		List<Product> result = Lists.newArrayList(productRepo.findAll())
+		List<Product> result = productRepo.findAll()
 		.stream()
 		.filter(p -> p.getCategory().equalsIgnoreCase("Books"))
 		.filter(p -> p.getPrice() > 100)
@@ -58,7 +61,7 @@ public class StreamApiTest {
 		Predicate<Product> priceFilter = product -> product.getPrice() > 100;
 
 		long startTime = System.currentTimeMillis();
-		List<Product> result = Lists.newArrayList(productRepo.findAll())
+		List<Product> result = productRepo.findAll()
 				.stream()
 				.filter(product -> categoryFilter.and(priceFilter).test(product))
 				.collect(Collectors.toList());
@@ -72,8 +75,9 @@ public class StreamApiTest {
 	@DisplayName("Obtain a list of product with category = \"Books\" and price > 100 (using BiPredicate for filter)")
 	public void exercise1b() {
 		BiPredicate<Product, String> categoryFilter = (product, category) -> product.getCategory().equalsIgnoreCase(category);
+
 		long startTime = System.currentTimeMillis();
-		List<Product> result = Lists.newArrayList(productRepo.findAll())
+		List<Product> result = productRepo.findAll()
 				.stream()
 				.filter(product -> categoryFilter.test(product, "Books") && product.getPrice() > 100)
 				.collect(Collectors.toList());
@@ -108,7 +112,7 @@ public class StreamApiTest {
 	public void exercise3() {
 		long startTime = System.currentTimeMillis();
 
-		List<Product> result = Lists.newArrayList(productRepo.findAll())
+		List<Product> result = productRepo.findAll()
 				.stream()
 				.filter(p -> p.getCategory().equalsIgnoreCase("Toys"))
 				.map(p -> p.withPrice(p.getPrice() * 0.9))
@@ -148,7 +152,7 @@ public class StreamApiTest {
 //                              .sorted(Comparator.comparing(Product::getPrice))
 //                              .findFirst();
 
-		Optional<Product> result = Lists.newArrayList(productRepo.findAll())
+		Optional<Product> result = productRepo.findAll()
 				.stream()
 				.filter(p -> p.getCategory().equalsIgnoreCase("Books"))
 				.min(Comparator.comparing(Product::getPrice));
@@ -246,7 +250,7 @@ public class StreamApiTest {
 	@DisplayName("Obtain statistics summary of all products belong to \"Books\" category")
 	public void exercise10() {
 		long startTime = System.currentTimeMillis();
-		DoubleSummaryStatistics statistics = Lists.newArrayList(productRepo.findAll())
+		DoubleSummaryStatistics statistics = productRepo.findAll()
 				.stream()
 				.filter(p -> p.getCategory().equalsIgnoreCase("Books"))
 				.mapToDouble(Product::getPrice)
@@ -345,7 +349,7 @@ public class StreamApiTest {
 	@DisplayName("Obtain a data map of product name by category")
 	public void exercise14() {
 		long startTime = System.currentTimeMillis();	
-		Map<String, List<String>> result = Lists.newArrayList(productRepo.findAll())
+		Map<String, List<String>> result = productRepo.findAll()
 				.stream()
 				.collect(
 						Collectors.groupingBy(
@@ -363,7 +367,7 @@ public class StreamApiTest {
 	@DisplayName("Get the most expensive product per category")
 	void exercise15() {
 		long startTime = System.currentTimeMillis();
-		Map<String, Optional<Product>> result = Lists.newArrayList(productRepo.findAll())
+		Map<String, Optional<Product>> result = productRepo.findAll()
 				.stream()
 				.collect(
 						Collectors.groupingBy(
@@ -383,7 +387,7 @@ public class StreamApiTest {
 	@DisplayName("Get the most expensive product (by name) per category")
 	void exercise15a() {
 		long startTime = System.currentTimeMillis();
-		Map<String, String> result = Lists.newArrayList(productRepo.findAll())
+		Map<String, String> result = productRepo.findAll()
 				.stream()
 				.collect(
 						Collectors.groupingBy(
